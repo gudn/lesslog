@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "/proto";
+
+message Operation {
+  uint64 sn = 1;
+  bytes data = 2;
+}
+
+message FetchRequest {
+  string log_name = 1;
+  uint64 since_sn = 2;
+}
+
+message FetchResponse {
+  repeated Operation operations = 1;
+}
+
+message PushRequest {
+  string log_name = 1;
+  uint64 last_sn = 2;
+  repeated Operation operations = 3;
+}
+
+message PushResponse {
+  bool success = 1;
+  uint64 last_sn = 2;
+}
+
+message CreateRequest {
+  string log_name = 1;
+}
+
+service Lesslog {
+  rpc Fetch(FetchRequest) returns (FetchResponse);
+  rpc Watch(FetchRequest) returns (stream FetchResponse);
+  rpc Push(PushRequest) returns (PushResponse);
+  rpc Create(CreateRequest) returns (PushResponse);
+}
