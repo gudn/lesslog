@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+    - 5432:5432
+    environment:
+    - POSTGRES_DB=lesslog
+    - POSTGRES_USER=lesslog
+    - POSTGRES_PASSWORD=lesslog
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+    - 8081:8081
+    links:
+    - postgres:postgres
+    environment:
+    - DATABASE_URL=postgres://lesslog:lesslog@postgres:5432/lesslog?sslmode=disable
+    depends_on:
+    - postgres
+
+volumes:
+  pgdata:
