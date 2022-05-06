@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	. "github.com/gudn/lesslog/internal/config"
-	_ "github.com/gudn/lesslog/internal/logging"
+	"github.com/gudn/lesslog/internal/logging"
 	"github.com/gudn/lesslog/proto"
 )
 
@@ -23,7 +23,10 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to listen")
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(logging.GrpcLogging),
+		grpc.StreamInterceptor(logging.GrpcStreamLogging),
+	)
 	proto.RegisterLesslogServer(s, Build())
 	reflection.Register(s)
 
