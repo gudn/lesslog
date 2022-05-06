@@ -2,6 +2,7 @@ package config
 
 type Config struct {
 	Bind string
+	Mode string
 	Log  struct {
 		Level string
 	}
