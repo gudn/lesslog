@@ -14,7 +14,12 @@ import (
 
 var (
 	mux = http.NewServeMux()
+	enabled = false
 )
+
+func IsEnabled() bool {
+	return enabled
+}
 
 func InitMetrics() {
 	if C.MonBind == "" {
@@ -30,8 +35,11 @@ func InitMetrics() {
 		Info().
 		Str("bind", lis.Addr().String()).
 		Msg("starting serving monitoring")
+	enabled = true
+
 	go func() {
 		if err := http.Serve(lis, mux); err != nil {
+			enabled = false
 			log.Error().Err(err).Msg("failed to serve monitoring")
 		}
 	}()
