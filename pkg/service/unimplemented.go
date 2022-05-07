@@ -34,6 +34,7 @@ func (UnimplementedService) Fetch(
 	context.Context,
 	string,
 	uint64,
+	uint,
 ) ([]*proto.Operation, error) {
 	return nil, makeErr("Fetch")
 }
@@ -42,6 +43,7 @@ func (UnimplementedService) Watch(
 	context.Context,
 	string,
 	uint64,
+	uint,
 ) (<-chan []*proto.Operation, error) {
 	return nil, makeErr("Watch")
 }

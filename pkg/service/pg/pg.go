@@ -106,9 +106,10 @@ func (PostgresService) Push(
 }
 
 func (PostgresService) Fetch(
-	context.Context,
-	string,
-	uint64,
+	ctx context.Context,
+	log_name string,
+	since_sn uint64,
+	limit uint,
 ) ([]*proto.Operation, error) {
 	if db.Pool == nil {
 		return nil, connIsNil
@@ -120,6 +121,7 @@ func (PostgresService) Watch(
 	context.Context,
 	string,
 	uint64,
+	uint,
 ) (<-chan []*proto.Operation, error) {
 	if db.Pool == nil {
 		return nil, connIsNil

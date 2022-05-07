@@ -27,6 +27,7 @@ type Interface interface {
 		ctx context.Context,
 		log_name string,
 		since_sn uint64,
+		limit uint,
 	) (
 		ops []*proto.Operation,
 		err error,
@@ -36,6 +37,7 @@ type Interface interface {
 		ctx context.Context,
 		log_name string,
 		since_sn uint64,
+		limit uint,
 	) (
 		ch <-chan []*proto.Operation,
 		err error,

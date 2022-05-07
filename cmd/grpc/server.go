@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"strconv"
 
 	. "github.com/gudn/lesslog/internal/config"
 	"github.com/gudn/lesslog/pkg/service"
 	"github.com/gudn/lesslog/pkg/service/pg"
 	"github.com/gudn/lesslog/proto"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/metadata"
 )
 
 type lesslogServer struct {
@@ -46,7 +48,19 @@ func (l *lesslogServer) Fetch(
 	ctx context.Context,
 	req *proto.FetchRequest,
 ) (*proto.FetchResponse, error) {
-	ops, err := l.s.Fetch(ctx, req.GetLogName(), req.GetSinceSn())
+	limit := uint(5)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		val := md["x-limit"]
+		if len(val) >= 1 {
+			val, err := strconv.ParseUint(val[0], 10, 32)
+			if err != nil {
+				return nil, err
+			}
+			limit = uint(val)
+		}
+	}
+	ops, err := l.s.Fetch(ctx, req.GetLogName(), req.GetSinceSn(), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +74,7 @@ func (l *lesslogServer) Watch(
 	ctx := stream.Context()
 	nested, cancel := context.WithCancel(ctx)
 	defer cancel()
-	ch, err := l.s.Watch(nested, req.GetLogName(), req.GetSinceSn())
+	ch, err := l.s.Watch(nested, req.GetLogName(), req.GetSinceSn(), 5)
 	if err != nil {
 		return err
 	}
