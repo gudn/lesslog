@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func logRequest(method string, err error) {
+func LogRequest(method string, err error) {
 	if err != nil {
 		log.
 			Error().
@@ -29,17 +29,6 @@ func GrpcLogging(
 	handler grpc.UnaryHandler,
 ) (any, error) {
 	resp, err := handler(ctx, req)
-	logRequest(info.FullMethod, err)
+	LogRequest(info.FullMethod, err)
 	return resp, err
-}
-
-func GrpcStreamLogging(
-	srv any,
-	ss grpc.ServerStream,
-	info *grpc.StreamServerInfo,
-	handler grpc.StreamHandler,
-) error {
-	err := handler(srv, ss)
-	logRequest(info.FullMethod, err)
-	return err
 }

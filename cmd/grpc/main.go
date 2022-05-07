@@ -25,8 +25,8 @@ func main() {
 	}
 
 	s := grpc.NewServer(
+		grpc.StreamInterceptor(dismissContextCancel),
 		grpc.UnaryInterceptor(logging.GrpcLogging),
-		grpc.StreamInterceptor(logging.GrpcStreamLogging),
 	)
 	proto.RegisterLesslogServer(s, Build())
 	reflection.Register(s)
