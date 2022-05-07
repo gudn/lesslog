@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	. "github.com/gudn/lesslog/internal/config"
+	_ "github.com/gudn/lesslog/internal/db/init"
 	"github.com/gudn/lesslog/internal/logging"
 	"github.com/gudn/lesslog/proto"
 )
