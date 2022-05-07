@@ -1,6 +1,8 @@
 package db_init
 
 import (
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/log/zerologadapter"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog/log"
 
@@ -14,7 +16,20 @@ func InitDb() {
 	if C.Mode != "postgres" {
 		return
 	}
-	pool, err := pgxpool.Connect(db.Ctx, C.Pg)
+	conf, err := pgxpool.ParseConfig(C.Pg)
+	if err != nil {
+		log.Error().Err(err).Msg("failed parse to Pg config")
+		return
+	}
+	// NOTE postgres log with INFO level
+	if log.Debug().Enabled() {
+		conf.ConnConfig.Logger = zerologadapter.NewLogger(log.Logger)
+		conf.ConnConfig.LogLevel, err = pgx.LogLevelFromString(C.Log.Level)
+		if err != nil {
+			conf.ConnConfig.LogLevel = pgx.LogLevelInfo
+		}
+	}
+	pool, err := pgxpool.ConnectConfig(db.Ctx, conf)
 	if err != nil {
 		log.Error().Err(err).Msg("failed connect to postgres")
 	} else {

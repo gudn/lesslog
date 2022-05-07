@@ -1,3 +1,4 @@
 BIND=:8080
 MODE=postgres
 PG=postgres://lesslog:lesslog@localhost/lesslog?sslmode=disable
+LOG__LEVEL=trace
