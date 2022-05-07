@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	. "github.com/gudn/lesslog/internal/config"
+	"github.com/gudn/lesslog/pkg/messaging"
 	"github.com/gudn/lesslog/pkg/messaging/local"
 	"github.com/gudn/lesslog/pkg/service"
 	"github.com/gudn/lesslog/pkg/service/pg"
@@ -92,6 +93,16 @@ func (l *lesslogServer) Watch(
 }
 
 func Build() *lesslogServer {
+	var m messaging.Interface
+	switch C.Messaging {
+	case "local":
+		log.Warn().Msg("user local messaging")
+		m = local.New()
+	case "none":
+		log.Warn().Msg("disable messaging")
+	default:
+		log.Error().Str("messaging", C.Messaging).Msg("unrecognized messaging mode; disable messaging")
+	}
 	var s service.Interface
 	switch C.Mode {
 	case "unimplemented":
@@ -99,7 +110,7 @@ func Build() *lesslogServer {
 		s = service.UnimplementedService{}
 	case "postgres":
 		log.Info().Msg("user postgres service mode")
-		s = pg.New(local.New())
+		s = pg.New(m)
 	default:
 		log.Error().Str("mode", C.Mode).Msg("unrecognized mode; fallback to unimplemented")
 		s = service.UnimplementedService{}
