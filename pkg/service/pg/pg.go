@@ -114,7 +114,31 @@ func (PostgresService) Fetch(
 	if db.Pool == nil {
 		return nil, connIsNil
 	}
-	panic("unimplemented")
+	rows, err := db.Pool.Query(ctx, `
+		SELECT sn, data
+		FROM operations
+		WHERE log_name = $1 and sn > $2
+		ORDER BY sn ASC
+    LIMIT $3
+  `, log_name, since_sn, limit)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	ops := make([]*proto.Operation, 0, limit)
+	for rows.Next() {
+		var sn uint64
+		var data *[]byte
+		if err := rows.Scan(&sn, &data); err != nil {
+			return nil, err
+		}
+		op := &proto.Operation{Sn: sn}
+		if data != nil {
+			op.Data = *data
+		}
+		ops = append(ops, op)
+	}
+	return ops, nil
 }
 
 func (PostgresService) Watch(
