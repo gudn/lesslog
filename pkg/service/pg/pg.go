@@ -5,15 +5,20 @@ import (
 	"errors"
 
 	"github.com/gudn/lesslog/internal/db"
+	"github.com/gudn/lesslog/pkg/messaging"
 	"github.com/gudn/lesslog/proto"
 	"github.com/jackc/pgx/v4"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 var connIsNil error = status.Error(codes.Unavailable, "database is unavailable")
+var messIsNil error = status.Error(codes.Unavailable, "messaging is unavailable")
 
-type PostgresService struct{}
+type PostgresService struct {
+	m messaging.Interface
+}
 
 func (PostgresService) Create(
 	ctx context.Context,
@@ -40,7 +45,7 @@ func (PostgresService) Create(
 	return *head_sn, nil
 }
 
-func (PostgresService) Push(
+func (p PostgresService) Push(
 	ctx context.Context,
 	log_name string,
 	last_sn uint64,
@@ -102,6 +107,9 @@ func (PostgresService) Push(
 		return false, last_sn - uint64(len(ops)), err
 	}
 	err = tx.Commit(ctx)
+	if p.m != nil {
+		p.m.Post(ctx, log_name, last_sn)
+	}
 	return true, last_sn, err
 }
 
@@ -141,14 +149,58 @@ func (PostgresService) Fetch(
 	return ops, nil
 }
 
-func (PostgresService) Watch(
-	context.Context,
-	string,
-	uint64,
-	uint,
+func (p PostgresService) Watch(
+	ctx context.Context,
+	log_name string,
+	since_sn uint64,
+	limit uint,
 ) (<-chan []*proto.Operation, error) {
 	if db.Pool == nil {
 		return nil, connIsNil
 	}
-	panic("unimplemented")
+	if p.m == nil {
+		return nil, messIsNil
+	}
+	result := make(chan []*proto.Operation)
+
+	var sendAll func() error
+	sendAll = func() error {
+		ops, err := p.Fetch(ctx, log_name, since_sn, limit)
+		if err != nil {
+			return err
+		}
+		if len(ops) > 0 {
+			result <- ops
+			since_sn = ops[len(ops)-1].Sn
+			return sendAll()
+		}
+		return nil
+	}
+
+	ch, err := p.m.Listen(ctx, log_name)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		if err := sendAll(); err != nil {
+			log.Warn().Err(err).Msg("failed send new operations")
+		}
+		for sn := range ch {
+			if sn > since_sn {
+				err := sendAll()
+				if err != nil {
+					log.Warn().Err(err).Msg("failed send new operations")
+					return
+				}
+			}
+		}
+	}()
+
+	return result, nil
+}
+
+
+func New(m messaging.Interface) PostgresService {
+	return PostgresService{m}
 }
