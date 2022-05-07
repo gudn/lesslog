@@ -5,9 +5,11 @@ import (
 
 	"github.com/gudn/lesslog/internal/db"
 	"github.com/gudn/lesslog/proto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-var connIsNil error = nil
+var connIsNil error = status.Error(codes.Unavailable, "database is unavailable")
 
 type PostgresService struct{}
 
@@ -42,6 +44,9 @@ func (PostgresService) Push(
 	uint64,
 	[]*proto.Operation,
 ) (bool, uint64, error) {
+	if db.Pool == nil {
+		return false, 0, connIsNil
+	}
 	panic("unimplemented")
 }
 
@@ -50,6 +55,9 @@ func (PostgresService) Fetch(
 	string,
 	uint64,
 ) ([]*proto.Operation, error) {
+	if db.Pool == nil {
+		return nil, connIsNil
+	}
 	panic("unimplemented")
 }
 
@@ -58,5 +66,8 @@ func (PostgresService) Watch(
 	string,
 	uint64,
 ) (<-chan []*proto.Operation, error) {
+	if db.Pool == nil {
+		return nil, connIsNil
+	}
 	panic("unimplemented")
 }
