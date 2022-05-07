@@ -5,6 +5,7 @@ import (
 
 	. "github.com/gudn/lesslog/internal/config"
 	"github.com/gudn/lesslog/pkg/service"
+	"github.com/gudn/lesslog/pkg/service/pg"
 	"github.com/gudn/lesslog/proto"
 	"github.com/rs/zerolog/log"
 )
@@ -81,6 +82,9 @@ func Build() *lesslogServer {
 	case "unimplemented":
 		log.Warn().Msg("use unimplemented service mode")
 		s = service.UnimplementedService{}
+	case "postgres":
+		log.Info().Msg("user postgres service mode")
+		s = pg.PostgresService{}
 	default:
 		log.Error().Str("mode", C.Mode).Msg("unrecognized mode; fallback to unimplemented")
 		s = service.UnimplementedService{}
