@@ -12,7 +12,7 @@ func makeErr(name string) error {
 	return status.Errorf(codes.Unimplemented, "method %v not implemented", name)
 }
 
-type UnimplementedService struct {}
+type UnimplementedService struct{}
 
 func (UnimplementedService) Create(
 	context.Context,

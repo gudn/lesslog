@@ -65,7 +65,7 @@ func (l *lesslogServer) Watch(
 	}
 	for {
 		select {
-		case ops:=<-ch:
+		case ops := <-ch:
 			if err := stream.Send(&proto.FetchResponse{Operations: ops}); err != nil {
 				return err
 			}
