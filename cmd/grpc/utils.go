@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func dismissContextCancel(
+func streamMiddle(
 	srv any,
 	ss grpc.ServerStream,
 	info *grpc.StreamServerInfo,
@@ -20,4 +20,15 @@ func dismissContextCancel(
 	}
 	logging.LogRequest(info.FullMethod, err)
 	return err
+}
+
+func unaryMiddle(
+	ctx context.Context,
+	req any,
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (any, error) {
+	resp, err := handler(ctx, req)
+	logging.LogRequest(info.FullMethod, err)
+	return resp, err
 }
