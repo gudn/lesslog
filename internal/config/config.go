@@ -5,6 +5,7 @@ type Config struct {
 	Mode      string
 	Pg        string
 	Messaging string
+	MonBind   string
 	Log       struct {
 		Level string
 	}

@@ -3,3 +3,4 @@ MODE=postgres
 MESSAGING=local
 PG=postgres://lesslog:lesslog@localhost/lesslog?sslmode=disable
 LOG__LEVEL=trace
+MONBIND=:8079
