@@ -13,9 +13,11 @@ import (
 	"github.com/gudn/lesslog/internal/config/init"
 )
 
+var Init *iinit.Operator
+
 func init() {
 	pretty := flag.Bool("pretty", false, "")
-	iinit.SequentialS(
+	s1 := iinit.SequentialS(
 		flag.Parse,
 		func() {
 			zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
@@ -26,7 +28,7 @@ func init() {
 		},
 	)
 
-	iinit.SequentialS(
+	s2 := iinit.SequentialS(
 		config_init.Init,
 		func() {
 			level := C.Log.Level
@@ -50,4 +52,6 @@ func init() {
 			}
 		},
 	)
+
+	Init = iinit.Parallel(s1, s2)
 }

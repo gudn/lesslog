@@ -8,8 +8,8 @@ import (
 
 	"github.com/gudn/iinit"
 	. "github.com/gudn/lesslog/internal/config"
-	"github.com/gudn/lesslog/internal/config/init"
 	"github.com/gudn/lesslog/internal/db"
+	"github.com/gudn/lesslog/internal/logging"
 )
 
 func InitDb() {
@@ -39,8 +39,8 @@ func InitDb() {
 }
 
 func init() {
-	iinit.SequentialS(
-		config_init.Init,
-		InitDb,
+	iinit.Sequential(
+		logging.Init,
+		iinit.Static(InitDb),
 	)
 }
