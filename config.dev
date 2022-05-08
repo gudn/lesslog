@@ -1,6 +1,7 @@
 BIND=:8080
 MODE=postgres
-MESSAGING=local
+MESSAGING=nats
+NATS=nats://localhost:4222
 PG=postgres://lesslog:lesslog@localhost/lesslog?sslmode=disable
 LOG__LEVEL=trace
 MONBIND=:8079

@@ -11,6 +11,7 @@ import (
 
 	. "github.com/gudn/lesslog/internal/config"
 	_ "github.com/gudn/lesslog/internal/db/init"
+	_ "github.com/gudn/lesslog/internal/mq/init"
 	"github.com/gudn/lesslog/internal/metrics"
 	_ "github.com/gudn/lesslog/internal/metrics"
 	"github.com/gudn/lesslog/proto"
