@@ -21,6 +21,10 @@ services:
     - DATABASE_URL=postgres://lesslog:lesslog@postgres:5432/lesslog?sslmode=disable
     depends_on:
     - postgres
+  nats:
+    image: nats:2-alpine
+    ports:
+    - 4222:4222
 
 volumes:
   pgdata:
