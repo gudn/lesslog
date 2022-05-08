@@ -5,7 +5,19 @@ import (
 	"errors"
 
 	"github.com/gudn/lesslog/internal/logging"
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+)
+
+var (
+	requests_total = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Subsystem: "grpc",
+			Name:      "requests_total",
+			Help:      "total number of processed requests",
+		},
+		[]string{"method", "success", "stream"},
+	)
 )
 
 func streamMiddle(
@@ -19,6 +31,17 @@ func streamMiddle(
 		err = nil
 	}
 	logging.LogRequest(info.FullMethod, err)
+	succ := "yes"
+	if err != nil {
+		succ = "no"
+	}
+	requests_total.With(
+		prometheus.Labels{
+			"method":  info.FullMethod,
+			"success": succ,
+			"stream":  "yes",
+		},
+	).Inc()
 	return err
 }
 
@@ -30,5 +53,16 @@ func unaryMiddle(
 ) (any, error) {
 	resp, err := handler(ctx, req)
 	logging.LogRequest(info.FullMethod, err)
+	succ := "yes"
+	if err != nil {
+		succ = "no"
+	}
+	requests_total.With(
+		prometheus.Labels{
+			"method":  info.FullMethod,
+			"success": succ,
+			"stream":  "false",
+		},
+	).Inc()
 	return resp, err
 }
