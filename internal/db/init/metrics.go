@@ -12,18 +12,18 @@ import (
 var (
 	acquited_count = prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: "pg",
-		Name: "acquited_count",
-		Help: "number of currently acquired connections in the pool",
+		Name:      "acquited_count",
+		Help:      "number of currently acquired connections in the pool",
 	})
 	idle_count = prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: "pg",
-		Name: "idle_count",
-		Help: "number of currently idle conns in the pool",
+		Name:      "idle_count",
+		Help:      "number of currently idle conns in the pool",
 	})
 	total_count = prometheus.NewGauge(prometheus.GaugeOpts{
 		Subsystem: "pg",
-		Name: "total_count",
-		Help: "total number of resources currently in the pool",
+		Name:      "total_count",
+		Help:      "total number of resources currently in the pool",
 	})
 )
 

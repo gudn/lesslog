@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	mux = http.NewServeMux()
+	mux     = http.NewServeMux()
 	enabled = false
 )
 

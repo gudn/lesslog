@@ -12,11 +12,10 @@ import (
 	"github.com/gudn/lesslog/proto"
 )
 
-
 var (
-	url = flag.String("url", "localhost:8080", "url to lesslog server")
+	url      = flag.String("url", "localhost:8080", "url to lesslog server")
 	log_name = flag.String("log", "log", "log name")
-	since = flag.Uint64("since", 0, "since argument to watch")
+	since    = flag.Uint64("since", 0, "since argument to watch")
 )
 
 func init() {
@@ -49,10 +48,10 @@ func main() {
 	for {
 		ops, err := ss.Recv()
 		if err != nil {
-		log.
-			Fatal().
-			Err(err).
-			Msg("failed recv operations")
+			log.
+				Fatal().
+				Err(err).
+				Msg("failed recv operations")
 		}
 		for _, op := range ops.Operations {
 			log.

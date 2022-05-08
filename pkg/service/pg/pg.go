@@ -200,7 +200,6 @@ func (p PostgresService) Watch(
 	return result, nil
 }
 
-
 func New(m messaging.Interface) PostgresService {
 	return PostgresService{m}
 }
