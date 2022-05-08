@@ -47,10 +47,7 @@ func (l *lesslogServer) Push(
 	return &proto.PushResponse{Success: succ, LastSn: last_sn}, nil
 }
 
-func (l *lesslogServer) Fetch(
-	ctx context.Context,
-	req *proto.FetchRequest,
-) (*proto.FetchResponse, error) {
+func extractLimit(ctx context.Context) (uint, error) {
 	limit := uint(5)
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
@@ -58,10 +55,21 @@ func (l *lesslogServer) Fetch(
 		if len(val) >= 1 {
 			val, err := strconv.ParseUint(val[0], 10, 32)
 			if err != nil {
-				return nil, err
+				return 0, err
 			}
 			limit = uint(val)
 		}
+	}
+	return limit, nil
+}
+
+func (l *lesslogServer) Fetch(
+	ctx context.Context,
+	req *proto.FetchRequest,
+) (*proto.FetchResponse, error) {
+	limit, err := extractLimit(ctx)
+	if err != nil {
+		return nil, err
 	}
 	ops, err := l.s.Fetch(ctx, req.GetLogName(), req.GetSinceSn(), limit)
 	if err != nil {
@@ -75,9 +83,13 @@ func (l *lesslogServer) Watch(
 	stream proto.Lesslog_WatchServer,
 ) error {
 	ctx := stream.Context()
+	limit, err := extractLimit(ctx)
+	if err != nil {
+		return err
+	}
 	nested, cancel := context.WithCancel(ctx)
 	defer cancel()
-	ch, err := l.s.Watch(nested, req.GetLogName(), req.GetSinceSn(), 5)
+	ch, err := l.s.Watch(nested, req.GetLogName(), req.GetSinceSn(), limit)
 	if err != nil {
 		return err
 	}
