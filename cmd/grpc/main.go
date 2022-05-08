@@ -13,7 +13,7 @@ import (
 	_ "github.com/gudn/lesslog/internal/db/init"
 	"github.com/gudn/lesslog/internal/metrics"
 	_ "github.com/gudn/lesslog/internal/metrics"
-	_ "github.com/gudn/lesslog/internal/mq/init"
+	_ "github.com/gudn/lesslog/internal/nc/init"
 	"github.com/gudn/lesslog/proto"
 )
 

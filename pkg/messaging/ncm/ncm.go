@@ -1,11 +1,11 @@
-package mqm
+package ncm
 
 import (
 	"context"
 	"encoding/binary"
 	"errors"
 
-	"github.com/gudn/lesslog/internal/mq"
+	"github.com/gudn/lesslog/internal/nc"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,17 +13,17 @@ import (
 
 var connIsNil error = status.Error(codes.Unavailable, "nats is unavailable")
 
-type MqMessaging struct{}
+type NcMessaging struct{}
 
-func (MqMessaging) Listen(
+func (NcMessaging) Listen(
 	ctx context.Context,
 	log_name string,
 ) (<-chan uint64, error) {
-	if mq.Conn == nil {
+	if nc.Conn == nil {
 		return nil, connIsNil
 	}
 
-	sub, err := mq.Conn.SubscribeSync(log_name)
+	sub, err := nc.Conn.SubscribeSync(log_name)
 	if err != nil {
 		return nil, err
 	}
@@ -51,15 +51,15 @@ func (MqMessaging) Listen(
 	return result, nil
 }
 
-func (MqMessaging) Post(
+func (NcMessaging) Post(
 	_ context.Context,
 	log_name string,
 	value uint64,
 ) error {
-	if mq.Conn == nil {
+	if nc.Conn == nil {
 		return connIsNil
 	}
 	buf := make([]byte, 10)
 	used := binary.PutUvarint(buf, value)
-	return mq.Conn.Publish(log_name, buf[:used])
+	return nc.Conn.Publish(log_name, buf[:used])
 }

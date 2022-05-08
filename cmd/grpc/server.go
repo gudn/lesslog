@@ -7,7 +7,7 @@ import (
 	. "github.com/gudn/lesslog/internal/config"
 	"github.com/gudn/lesslog/pkg/messaging"
 	"github.com/gudn/lesslog/pkg/messaging/local"
-	"github.com/gudn/lesslog/pkg/messaging/mqm"
+	"github.com/gudn/lesslog/pkg/messaging/ncm"
 	"github.com/gudn/lesslog/pkg/service"
 	"github.com/gudn/lesslog/pkg/service/pg"
 	"github.com/gudn/lesslog/proto"
@@ -115,7 +115,7 @@ func Build() *lesslogServer {
 		log.Warn().Msg("disable messaging")
 	case "nats":
 		log.Info().Msg("use nats messaging")
-		m = mqm.MqMessaging{}
+		m = ncm.NcMessaging{}
 	default:
 		log.Error().Str("messaging", C.Messaging).Msg("unrecognized messaging mode; disable messaging")
 	}

@@ -1,4 +1,4 @@
-package mq
+package nc
 
 import "github.com/nats-io/nats.go"
 
