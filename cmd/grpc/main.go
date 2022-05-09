@@ -22,7 +22,7 @@ func init() {
 		metrics.InitMetrics,
 		func() {
 			if metrics.IsEnabled() {
-				prometheus.MustRegister(requests_total)
+				prometheus.MustRegister(requests_total, requests_in_flight)
 			}
 		},
 	)

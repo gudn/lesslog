@@ -16,7 +16,15 @@ var (
 			Name:      "requests_total",
 			Help:      "total number of processed requests",
 		},
-		[]string{"method", "success", "stream"},
+		[]string{"method", "success"},
+	)
+	requests_in_flight = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Subsystem: "grpc",
+			Name:      "requests_in_flight",
+			Help:      "number of inprocessing reqests",
+		},
+		[]string{"method"},
 	)
 )
 
@@ -26,6 +34,9 @@ func streamMiddle(
 	info *grpc.StreamServerInfo,
 	handler grpc.StreamHandler,
 ) error {
+	requests_in_flight.
+		With(prometheus.Labels{"method": info.FullMethod}).
+		Inc()
 	err := handler(srv, ss)
 	if errors.Is(err, context.Canceled) {
 		err = nil
@@ -35,11 +46,13 @@ func streamMiddle(
 	if err != nil {
 		succ = "no"
 	}
+	requests_in_flight.
+		With(prometheus.Labels{"method": info.FullMethod}).
+		Dec()
 	requests_total.With(
 		prometheus.Labels{
 			"method":  info.FullMethod,
 			"success": succ,
-			"stream":  "yes",
 		},
 	).Inc()
 	return err
@@ -51,17 +64,22 @@ func unaryMiddle(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (any, error) {
+	requests_in_flight.
+		With(prometheus.Labels{"method": info.FullMethod}).
+		Inc()
 	resp, err := handler(ctx, req)
 	logging.LogRequest(info.FullMethod, err)
 	succ := "yes"
 	if err != nil {
 		succ = "no"
 	}
+	requests_in_flight.
+		With(prometheus.Labels{"method": info.FullMethod}).
+		Dec()
 	requests_total.With(
 		prometheus.Labels{
 			"method":  info.FullMethod,
 			"success": succ,
-			"stream":  "false",
 		},
 	).Inc()
 	return resp, err
