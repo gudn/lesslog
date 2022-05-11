@@ -125,7 +125,7 @@ func Build() *lesslogServer {
 		log.Warn().Msg("use unimplemented service mode")
 		s = service.UnimplementedService{}
 	case "postgres":
-		log.Info().Msg("user postgres service mode")
+		log.Info().Msg("use postgres service mode")
 		s = pg.New(m)
 	default:
 		log.Error().Str("mode", C.Mode).Msg("unrecognized mode; fallback to unimplemented")
